@@ -23,6 +23,11 @@ module.exports = (grunt) ->
           "app/html/**/*.html"
         ]
 
+      jade:
+        src: [
+          "app/html/**/*.jade"
+        ]
+
       coffee:
         dest: "generated/dapp/compiled-coffee"
         compiled: [
@@ -35,6 +40,13 @@ module.exports = (grunt) ->
           "app/contracts/**/*.sol"
           "app/contracts/**/*.se"
         ]
+
+    jade:
+      no_options:
+        files:
+          'generated/jade/': ["<%= files.jade.src %>"]
+      options:
+        client: false
 
     coffee:
       compile:
@@ -57,8 +69,8 @@ module.exports = (grunt) ->
         livereload: true
 
       html:
-        files: ["<%= files.html.src %>"]
-        tasks: ["copy"]
+        files: ["<%= files.html.src %>", "<%= files.jade.src %>"]
+        tasks: ["jade", "copy"]
 
       js:
         files: ["<%= files.js.src %>"]
@@ -81,10 +93,10 @@ module.exports = (grunt) ->
         tasks: ["deploy", "concat", "copy"]
 
     copy:
-      html:
+      jade:
         files:
-          "generated/dapp/index.html" : "<%= files.html.src %>"
-          "dist/dapp/index.html"      : "<%= files.html.src %>"
+          "generated/dapp/index.html" : "generated/jade/**/*.html"
+          "dist/dapp/index.html"      : "generated/jade/**/*.html"
       css:
         files:
           "dist/dapp/css/app.min.css" : "<%= files.css.src %>"
@@ -109,6 +121,6 @@ module.exports = (grunt) ->
   # Loads all plugins that match "grunt-", in this case all of our current plugins
   require('matchdep').filterAll('grunt-*').forEach(grunt.loadNpmTasks)
 
-  grunt.registerTask "deploy", ["coffee", "deploy_contracts", "concat", "copy", "server", "watch"]
-  grunt.registerTask "build", ["clean", "deploy_contracts", "coffee", "concat", "uglify", "copy"]
+  grunt.registerTask "deploy", ["coffee", "jade", "deploy_contracts", "concat", "copy", "server", "watch"]
+  grunt.registerTask "build", ["clean", "deploy_contracts", "coffee", "jade", "concat", "uglify", "copy"]
 
